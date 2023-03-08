@@ -1,0 +1,6 @@
+.editorconfig
+.git
+.vscode
+.env
+.env.example
+tmp/*
