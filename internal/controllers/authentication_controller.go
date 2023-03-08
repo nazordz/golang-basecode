@@ -39,7 +39,7 @@ func (controller *AuthenticationController) Login(c *gin.Context) {
 	}
 
 	bearer, _ := utils.GenerateToken(user)
-	refresh_token, _ := utils.GenerateRefreshToken(user.ID)
+	refresh_token, _ := utils.GenerateRefreshToken(user)
 	lifetime, _ := strconv.Atoi(pkg.GodotEnv("TOKEN_HOUR_LIFESPAN"))
 
 	c.JSON(http.StatusOK, gin.H{

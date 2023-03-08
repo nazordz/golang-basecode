@@ -13,6 +13,11 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+type JwtClaims struct {
+	User models.User `json:"user"`
+	jwt.StandardClaims
+}
+
 func GenerateToken(user models.User) (string, error) {
 
 	token_lifespan, err := strconv.Atoi(pkg.GodotEnv("TOKEN_HOUR_LIFESPAN"))
@@ -31,7 +36,7 @@ func GenerateToken(user models.User) (string, error) {
 
 }
 
-func GenerateRefreshToken(user_id string) (string, error) {
+func GenerateRefreshToken(user models.User) (string, error) {
 	token_lifespan, err := strconv.Atoi(pkg.GodotEnv("TOKEN_HOUR_LIFESPAN"))
 
 	if err != nil {
@@ -40,7 +45,7 @@ func GenerateRefreshToken(user_id string) (string, error) {
 
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
-	claims["user_id"] = user_id
+	claims["user"] = user
 	claims["exp"] = time.Now().Add(time.Hour * time.Duration(token_lifespan)).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -73,15 +78,10 @@ func ExtractToken(c *gin.Context) string {
 	return ""
 }
 
-type MyCustomClaims struct {
-	User models.User `json:"user"`
-	jwt.StandardClaims
-}
-
 func ExtractTokenID(c *gin.Context) (string, error) {
 
 	tokenString := ExtractToken(c)
-	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (any, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &JwtClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -90,7 +90,7 @@ func ExtractTokenID(c *gin.Context) (string, error) {
 	if err != nil {
 		return "Error ", err
 	}
-	claims, ok := token.Claims.(*MyCustomClaims)
+	claims, ok := token.Claims.(*JwtClaims)
 
 	if ok && token.Valid {
 		return claims.User.ID, nil
