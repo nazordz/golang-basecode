@@ -10,16 +10,19 @@ type Routes struct {
 	router                   *gin.Engine
 	userController           controllers.UserController
 	authenticationController controllers.AuthenticationController
+	roleController           controllers.RoleController
 }
 
 func NewRoutes(
 	userController controllers.UserController,
 	authenticationController controllers.AuthenticationController,
+	roleController controllers.RoleController,
 ) *Routes {
 	r := Routes{
 		router:                   gin.Default(),
 		userController:           userController,
 		authenticationController: authenticationController,
+		roleController:           roleController,
 	}
 
 	gin.SetMode(middlewares.GinMode())
@@ -29,6 +32,7 @@ func NewRoutes(
 	api := r.router.Group("/api")
 	r.addUser(api, userController)
 	r.addAuthentication(api, authenticationController)
+	r.addRole(api, roleController)
 
 	return &r
 }

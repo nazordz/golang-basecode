@@ -52,9 +52,22 @@ func GenerateRefreshToken(user models.User) (string, error) {
 	return token.SignedString([]byte(pkg.GodotEnv("JWT_SECRET_KEY")))
 }
 
+func CheckToken(tokenString string) error {
+	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(pkg.GodotEnv("JWT_SECRET_KEY")), nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func TokenValid(c *gin.Context) error {
 	tokenString := ExtractToken(c)
-	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -96,4 +109,43 @@ func ExtractTokenID(c *gin.Context) (string, error) {
 		return claims.User.ID, nil
 	}
 	return "", errors.New("token invalid")
+}
+
+func ExtractUser(c *gin.Context) (models.User, error) {
+	var user models.User
+	tokenString := ExtractToken(c)
+	token, err := jwt.ParseWithClaims(tokenString, &JwtClaims{}, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(pkg.GodotEnv("JWT_SECRET_KEY")), nil
+	})
+	if err != nil {
+		return user, err
+	}
+	claims, ok := token.Claims.(*JwtClaims)
+
+	if ok && token.Valid {
+		return claims.User, nil
+	}
+	return user, errors.New("token invalid")
+}
+
+func ExtractUserData(tokenString string) (models.User, error) {
+	var user models.User
+	token, err := jwt.ParseWithClaims(tokenString, &JwtClaims{}, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(pkg.GodotEnv("JWT_SECRET_KEY")), nil
+	})
+	if err != nil {
+		return user, err
+	}
+	claims, ok := token.Claims.(*JwtClaims)
+
+	if ok && token.Valid {
+		return claims.User, nil
+	}
+	return user, errors.New("token invalid")
 }

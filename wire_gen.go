@@ -21,12 +21,17 @@ func InitializedServer() *routers.Routes {
 	db := pkg.NewDB()
 	userRepository := repositories.NewUserRepository(db)
 	userService := services.NewUserService(userRepository)
-	userController := controllers.NewUserController(userService)
+	roleRepository := repositories.NewRoleRepository(db)
+	roleService := services.NewRoleService(roleRepository)
+	userController := controllers.NewUserController(userService, roleService)
 	authenticationController := controllers.NewAuthenticationController(userService)
-	routes := routers.NewRoutes(userController, authenticationController)
+	roleController := controllers.NewRoleController(roleService)
+	routes := routers.NewRoutes(userController, authenticationController, roleController)
 	return routes
 }
 
 // injector.go:
 
 var userSet = wire.NewSet(repositories.NewUserRepository, services.NewUserService, controllers.NewUserController)
+
+var roleSet = wire.NewSet(repositories.NewRoleRepository, services.NewRoleService, controllers.NewRoleController)

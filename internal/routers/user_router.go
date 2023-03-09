@@ -10,7 +10,7 @@ func (route *Routes) addUser(
 	rg *gin.RouterGroup,
 	userController controllers.UserController,
 ) {
-	group := rg.Group("user").Use(middlewares.JwtAuthMiddleware())
+	group := rg.Group("user").Use(middlewares.JwtAuthMiddleware(), middlewares.LoggedAs("admin"))
 	group.GET("/", userController.FindAll)
 	group.POST("/create", userController.Create)
 	group.GET("/:id", userController.FindById)

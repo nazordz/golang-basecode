@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/devgoorita/golang-basecode/internal/models"
 	"github.com/devgoorita/golang-basecode/internal/utils"
 	"github.com/sirupsen/logrus"
@@ -41,17 +43,17 @@ func (repository *UserRepository) FindByColumn(column string, id string) models.
 	return user
 }
 
-func (repository *UserRepository) Authentication(email string, password string) (bool, string) {
+func (repository *UserRepository) Authentication(email string, password string) (models.User, error) {
 	var user models.User
-	tx := repository.DB.First(&user, "email = ?", email)
+	tx := repository.DB.Preload("Role").First(&user, "email = ?", email)
 
 	if tx.Error != nil {
-		return false, "Email not found"
+		return user, errors.New("email not found")
 	}
 
 	err := utils.VerifyPassword(password, user.Password)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		return false, "Wrong password"
+		return user, errors.New("wrong password")
 	}
-	return true, "Logged"
+	return user, nil
 }

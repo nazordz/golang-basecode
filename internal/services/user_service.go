@@ -1,8 +1,6 @@
 package services
 
 import (
-	"errors"
-
 	"github.com/devgoorita/golang-basecode/internal/models"
 	"github.com/devgoorita/golang-basecode/internal/repositories"
 	"golang.org/x/crypto/bcrypt"
@@ -33,13 +31,6 @@ func (userService *UserService) FindById(id string) models.User {
 }
 
 func (userService *UserService) Authentication(email string, password string) (models.User, error) {
-	check, msg := userService.userRepository.Authentication(email, password)
-	var user models.User
-	if !check {
-		return user, errors.New(msg)
-	}
+	return userService.userRepository.Authentication(email, password)
 
-	user = userService.userRepository.FindByColumn("email", email)
-
-	return user, nil
 }

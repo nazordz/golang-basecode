@@ -89,3 +89,41 @@ func (controller *AuthenticationController) CurrentUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, u)
 }
+
+func (controller *AuthenticationController) RefreshToken(c *gin.Context) {
+	var req models.RefreshTokenRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Bad Request",
+		})
+		return
+	}
+
+	err := utils.CheckToken(req.Token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Token invalid",
+		})
+		return
+	}
+	user, err := utils.ExtractUserData(req.Token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Token invalid",
+		})
+		return
+	}
+
+	bearer, _ := utils.GenerateToken(user)
+	refresh_token, _ := utils.GenerateRefreshToken(user)
+	lifetime, _ := strconv.Atoi(pkg.GodotEnv("TOKEN_HOUR_LIFESPAN"))
+
+	c.JSON(http.StatusOK, gin.H{
+		"bearer_token":  bearer,
+		"refresh_token": refresh_token,
+		"token_type":    "Bearer",
+		"expires_in":    lifetime * 60 * 60,
+	})
+
+}

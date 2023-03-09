@@ -39,3 +39,25 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func LoggedAs(roleNames ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, err := utils.ExtractUser(c)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "Unauthorized",
+			})
+			c.Abort()
+		}
+		for _, v := range roleNames {
+			if user.Role.Name == v {
+				c.Set("user", user)
+				c.Next()
+			}
+		}
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized",
+		})
+		c.Abort()
+	}
+}
