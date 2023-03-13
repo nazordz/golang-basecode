@@ -1,13 +1,23 @@
 # Golang Basecode
 
+## Prerequisites
+1. Golang v1.20.0
+2. Postgresql > v12
+
 ## Dependecies
-1. [gin](github.com/gin-gonic/gin) - Routing, middleware, & form validation
-2. [gorm](gorm.io/gorm) - ORM & migration
-3. [logrus](github.com/sirupsen/logrus) - Logging
-4. [godotenv](github.com/joho/godotenv) - Environment variable
-5. [wire](github.com/google/wire) - Dependency Injection
-6. [jwt](github.com/golang-jwt/jwt) - JSON Web Token for authentication
-7. [air](github.com/cosmtrek/air) - Auto refresh
+1. [gin](https://github.com/gin-gonic/gin) - Routing, middleware, & form validation
+2. [gorm](https://gorm.io/gorm) - ORM & migration
+3. [logrus](https://github.com/sirupsen/logrus) - Logging
+4. [godotenv](https://github.com/joho/godotenv) - Environment variable
+5. [wire](https://github.com/google/wire) - Dependency Injection
+6. [jwt](https://github.com/golang-jwt/jwt) - JSON Web Token for authentication
+7. [air](https://github.com/cosmtrek/air) - Auto refresh
+
+
+## Getting Started
+1. copy `.env.example` to `.env`
+2. run `go install github.com/cosmtrek/air@latest` to install [air](https://github.com/cosmtrek/air)
+3. run `air` in terminal to run in development
 
 ## Folder structures
 ```bash
