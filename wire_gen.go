@@ -26,7 +26,10 @@ func InitializedServer() *routers.Routes {
 	userController := controllers.NewUserController(userService, roleService)
 	authenticationController := controllers.NewAuthenticationController(userService)
 	roleController := controllers.NewRoleController(roleService)
-	routes := routers.NewRoutes(userController, authenticationController, roleController)
+	newsRepository := repositories.NewNewsRepository(db)
+	newsService := services.NewNewsService(newsRepository)
+	newsController := controllers.NewNewsController(newsService, db)
+	routes := routers.NewRoutes(userController, authenticationController, roleController, newsController)
 	return routes
 }
 
@@ -35,3 +38,5 @@ func InitializedServer() *routers.Routes {
 var userSet = wire.NewSet(repositories.NewUserRepository, services.NewUserService, controllers.NewUserController)
 
 var roleSet = wire.NewSet(repositories.NewRoleRepository, services.NewRoleService, controllers.NewRoleController)
+
+var newsSet = wire.NewSet(repositories.NewNewsRepository, services.NewNewsService, controllers.NewNewsController)

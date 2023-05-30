@@ -24,11 +24,18 @@ var roleSet = wire.NewSet(
 	controllers.NewRoleController,
 )
 
+var newsSet = wire.NewSet(
+	repositories.NewNewsRepository,
+	services.NewNewsService,
+	controllers.NewNewsController,
+)
+
 func InitializedServer() *routers.Routes {
 	wire.Build(
 		pkg.NewDB,
 		userSet,
 		roleSet,
+		newsSet,
 		controllers.NewAuthenticationController,
 		routers.NewRoutes,
 	)

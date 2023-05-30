@@ -26,4 +26,5 @@ func NewDB() *gorm.DB {
 func migrateDatabase(db *gorm.DB) {
 	db.AutoMigrate(&models.Role{})
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.News{})
 }
